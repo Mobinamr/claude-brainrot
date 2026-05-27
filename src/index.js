@@ -4,7 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const { startClaudeMonitor } = require('./monitor/claudeMonitor');
+const { startSimpleMonitor, recordActivity } = require('./monitor/simpleMonitor');
 const { initAuth } = require('./auth/authManager');
 const { VideoPopupManager } = require('./video/videoPopup');
 
@@ -21,8 +21,17 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'claude-focus-videos-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true if using HTTPS
+  cookie: { secure: false }
 }));
+
+// Activity tracking middleware - records activity on every request
+app.use((req, res, next) => {
+  // Only track activity for logged-in users
+  if (req.session.user) {
+    recordActivity();
+  }
+  next();
+});
 
 // Initialize authentication
 initAuth(app);
@@ -50,6 +59,16 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// Activity ping endpoint - dashboard can ping this to keep activity alive
+app.post('/api/activity/ping', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  recordActivity();
+  res.json({ success: true });
+});
+
 // Manual trigger routes for testing
 app.post('/api/video/show', (req, res) => {
   if (!req.session.user) {
@@ -66,18 +85,17 @@ app.post('/api/video/hide', (req, res) => {
   res.json({ success: true, message: 'Video popup closed' });
 });
 
-// Start Claude Code monitor
-startClaudeMonitor({
+// Start simple activity monitor
+startSimpleMonitor({
   onActive: () => {
-    console.log('Claude Code is active - showing video');
-    videoManager.showVideo();
+    console.log('💫 Activity detected - showing video');
+    const hasUsers = true; // Could check if any users are logged in
+    if (hasUsers) {
+      videoManager.showVideo('demo');
+    }
   },
   onIdle: () => {
-    console.log('Claude Code is idle - hiding video');
-    videoManager.hideVideo();
-  },
-  onWaitingForInput: () => {
-    console.log('Claude Code waiting for input - hiding video');
+    console.log('😴 No activity - hiding video');
     videoManager.hideVideo();
   }
 });
@@ -85,4 +103,5 @@ startClaudeMonitor({
 app.listen(PORT, () => {
   console.log(`🚀 Claude Focus Videos running on http://localhost:${PORT}`);
   console.log('👉 Open your browser and login to start');
+  console.log('💡 Video popup will show automatically when you interact with the app');
 });
