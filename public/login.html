@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Claude Focus Videos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
       margin: 0;
@@ -13,140 +14,191 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #0a0a0a;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Noisy Grid Background */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none;
     }
 
     .login-container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      padding: 40px;
-      max-width: 400px;
+      background: #0f0f0f;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 48px;
+      max-width: 440px;
       width: 100%;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
 
     h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
-      color: #333;
-      text-align: center;
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #ffffff;
+      font-weight: 600;
+      letter-spacing: -0.02em;
     }
 
     .subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 30px;
+      color: #6b6b6b;
+      margin-bottom: 32px;
       font-size: 14px;
+      font-weight: 400;
     }
 
     .platform-buttons {
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
     }
 
     .platform-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 15px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
+      gap: 12px;
+      padding: 14px 24px;
+      border: 1px solid #262626;
+      background: #0a0a0a;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       text-decoration: none;
-      color: white;
+      color: #ffffff;
     }
 
     .platform-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      background: #1a1a1a;
+      border-color: #404040;
     }
 
-    .btn-tiktok {
-      background: linear-gradient(135deg, #000000 0%, #ff0050 100%);
+    .platform-btn i {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
     }
 
-    .btn-instagram {
-      background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    }
-
-    .btn-youtube {
-      background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
-    }
+    .btn-tiktok:hover { border-color: #ff0050; }
+    .btn-instagram:hover { border-color: #E4405F; }
+    .btn-youtube:hover { border-color: #FF0000; }
 
     .divider {
       text-align: center;
-      margin: 20px 0;
-      color: #999;
-      font-size: 14px;
+      margin: 24px 0;
+      color: #4a4a4a;
+      font-size: 13px;
+      position: relative;
     }
 
+    .divider::before,
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: #1a1a1a;
+    }
+
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+
     .simple-login {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
+      margin-top: 24px;
     }
 
     .form-group {
-      margin-bottom: 15px;
+      margin-bottom: 16px;
     }
 
     label {
       display: block;
-      margin-bottom: 5px;
-      color: #555;
-      font-size: 14px;
+      margin-bottom: 8px;
+      color: #a3a3a3;
+      font-size: 13px;
       font-weight: 500;
     }
 
     input, select {
       width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
+      padding: 12px 16px;
+      background: #0a0a0a;
+      border: 1px solid #262626;
       border-radius: 8px;
       font-size: 14px;
-      transition: border-color 0.3s ease;
+      color: #ffffff;
+      transition: all 0.2s ease;
     }
 
     input:focus, select:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #404040;
+      background: #1a1a1a;
+    }
+
+    select option {
+      background: #0a0a0a;
+      color: #ffffff;
     }
 
     .submit-btn {
       width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      padding: 14px;
+      background: #ffffff;
+      color: #0a0a0a;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
+      border-radius: 8px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      background: #e5e5e5;
     }
 
     .error {
-      background: #fee;
-      color: #c33;
-      padding: 10px;
+      background: #2a1a1a;
+      border: 1px solid #4a2626;
+      color: #ff6b6b;
+      padding: 12px 16px;
       border-radius: 8px;
-      margin-bottom: 15px;
-      font-size: 14px;
+      margin-bottom: 16px;
+      font-size: 13px;
       display: none;
     }
   </style>
@@ -154,38 +206,38 @@
 <body>
   <div class="login-container">
     <h1>Claude Focus Videos</h1>
-    <p class="subtitle">Log in om video's te bekijken tijdens Claude's werk</p>
+    <p class="subtitle">Sign in to watch videos while Claude works</p>
 
     <div class="error" id="error"></div>
 
     <div class="platform-buttons">
       <a href="/auth/tiktok" class="platform-btn btn-tiktok">
-        <span>🎵</span> Login met TikTok
+        <i class="fab fa-tiktok"></i> Continue with TikTok
       </a>
       <a href="/auth/instagram" class="platform-btn btn-instagram">
-        <span>📸</span> Login met Instagram
+        <i class="fab fa-instagram"></i> Continue with Instagram
       </a>
       <a href="/auth/youtube" class="platform-btn btn-youtube">
-        <span>▶️</span> Login met YouTube
+        <i class="fab fa-youtube"></i> Continue with YouTube
       </a>
     </div>
 
-    <div class="divider">of gebruik demo mode</div>
+    <div class="divider">or use demo mode</div>
 
     <div class="simple-login">
       <form id="loginForm">
         <div class="form-group">
           <label for="platform">Platform</label>
           <select id="platform" name="platform" required>
-            <option value="">Kies een platform</option>
+            <option value="">Select platform</option>
             <option value="tiktok">TikTok</option>
             <option value="instagram">Instagram</option>
             <option value="youtube">YouTube</option>
           </select>
         </div>
         <div class="form-group">
-          <label for="username">Gebruikersnaam</label>
-          <input type="text" id="username" name="username" placeholder="Je gebruikersnaam" required>
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required>
         </div>
         <button type="submit" class="submit-btn">Start Demo Mode</button>
       </form>

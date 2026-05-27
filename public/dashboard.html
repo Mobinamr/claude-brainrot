@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Claude Focus Videos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
       margin: 0;
@@ -13,168 +14,280 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #0a0a0a;
       min-height: 100vh;
-      padding: 20px;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Noisy Grid Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
     }
 
     .container {
       max-width: 1200px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
     .header {
-      background: white;
-      border-radius: 15px;
-      padding: 20px 30px;
-      margin-bottom: 20px;
+      background: #0f0f0f;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 24px 32px;
+      margin-bottom: 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
     .header h1 {
-      font-size: 24px;
-      color: #333;
+      font-size: 20px;
+      color: #ffffff;
+      font-weight: 600;
+      letter-spacing: -0.02em;
     }
 
     .user-info {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
     }
 
     .user-badge {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1a1a;
+      border: 1px solid #262626;
       padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #a3a3a3;
+    }
+
+    .user-badge i {
+      color: #ffffff;
     }
 
     .logout-btn {
-      background: #ff4757;
-      color: white;
-      border: none;
-      padding: 10px 20px;
+      background: #1a1a1a;
+      border: 1px solid #262626;
+      color: #ffffff;
+      padding: 8px 16px;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
+      font-weight: 500;
+      font-size: 13px;
+      transition: all 0.2s ease;
     }
 
     .logout-btn:hover {
-      background: #ff3838;
-      transform: translateY(-2px);
+      background: #262626;
+      border-color: #404040;
     }
 
     .main-content {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 24px;
     }
 
     .card {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      background: #0f0f0f;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 32px;
     }
 
     .card h2 {
-      font-size: 20px;
-      margin-bottom: 15px;
-      color: #333;
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #ffffff;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h2 i {
+      font-size: 14px;
+      color: #6b6b6b;
     }
 
     .status-indicator {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      margin-bottom: 15px;
+      gap: 12px;
+      padding: 16px;
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      margin-bottom: 20px;
     }
 
     .status-dot {
-      width: 12px;
-      height: 12px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      animation: pulse 2s infinite;
+      flex-shrink: 0;
     }
 
     .status-dot.active {
-      background: #2ecc71;
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+      animation: pulse 2s infinite;
     }
 
     .status-dot.idle {
-      background: #95a5a6;
-      animation: none;
+      background: #525252;
     }
 
     @keyframes pulse {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      50% { opacity: 0.6; }
     }
 
     .status-text {
-      font-weight: 600;
-      color: #555;
+      font-weight: 500;
+      font-size: 14px;
+      color: #e5e5e5;
     }
 
     .info-grid {
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
 
     .info-row {
       display: flex;
       justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
     }
 
     .info-label {
-      color: #666;
-      font-size: 14px;
+      color: #6b6b6b;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-label i {
+      font-size: 12px;
+      width: 16px;
     }
 
     .info-value {
-      color: #333;
-      font-weight: 600;
-      font-size: 14px;
+      color: #e5e5e5;
+      font-weight: 500;
+      font-size: 13px;
     }
 
-    .instructions {
-      background: #e3f2fd;
-      border-left: 4px solid #2196f3;
-      padding: 15px;
+    .info-box {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
       border-radius: 8px;
+      padding: 16px;
       margin-top: 20px;
     }
 
-    .instructions h3 {
-      color: #1976d2;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-
-    .instructions ul {
-      margin-left: 20px;
-      color: #555;
-    }
-
-    .instructions li {
-      margin-bottom: 5px;
+    .info-box h3 {
+      color: #e5e5e5;
       font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-box h3 i {
+      font-size: 12px;
+      color: #6b6b6b;
+    }
+
+    .info-box ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .info-box li {
+      color: #a3a3a3;
+      font-size: 13px;
+      line-height: 1.8;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .info-box li::before {
+      content: '•';
+      position: absolute;
+      left: 8px;
+      color: #404040;
+    }
+
+    .info-box.warning {
+      background: #1a1208;
+      border-color: #332610;
+    }
+
+    .info-box.warning h3 {
+      color: #fbbf24;
+    }
+
+    .info-box.warning li {
+      color: #d4a574;
     }
 
     @media (max-width: 768px) {
       .main-content {
         grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .user-info {
+        width: 100%;
+        justify-content: space-between;
       }
     }
   </style>
@@ -182,55 +295,81 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>Claude Focus Videos Dashboard</h1>
+      <h1>Claude Focus Videos</h1>
       <div class="user-info">
-        <div class="user-badge" id="userBadge">Loading...</div>
-        <button class="logout-btn" onclick="logout()">Uitloggen</button>
+        <div class="user-badge" id="userBadge">
+          <i class="fas fa-user"></i>
+          <span>Loading...</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
       </div>
     </div>
 
     <div class="main-content">
       <div class="card">
-        <h2>Claude Code Status</h2>
+        <h2>
+          <i class="fas fa-circle-notch"></i>
+          Claude Code Status
+        </h2>
         <div class="status-indicator">
           <div class="status-dot idle" id="statusDot"></div>
-          <div class="status-text" id="statusText">Wachten op activiteit...</div>
+          <div class="status-text" id="statusText">Waiting for activity...</div>
         </div>
 
         <div class="info-grid">
           <div class="info-row">
-            <span class="info-label">Platform</span>
+            <span class="info-label">
+              <i class="fas fa-globe"></i>
+              Platform
+            </span>
             <span class="info-value" id="platform">-</span>
           </div>
           <div class="info-row">
-            <span class="info-label">Gebruiker</span>
+            <span class="info-label">
+              <i class="fas fa-user"></i>
+              Username
+            </span>
             <span class="info-value" id="username">-</span>
           </div>
           <div class="info-row">
-            <span class="info-label">Monitoring</span>
-            <span class="info-value" id="monitoring">Actief ✅</span>
+            <span class="info-label">
+              <i class="fas fa-chart-line"></i>
+              Monitoring
+            </span>
+            <span class="info-value" id="monitoring">Active</span>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2>Hoe het werkt</h2>
-        <div class="instructions">
-          <h3>Automatische Video's</h3>
+        <h2>
+          <i class="fas fa-info-circle"></i>
+          How It Works
+        </h2>
+        <div class="info-box">
+          <h3>
+            <i class="fas fa-video"></i>
+            Automatic Videos
+          </h3>
           <ul>
-            <li>Wanneer Claude Code bezig is, verschijnt er een video popup</li>
-            <li>De video verdwijnt automatisch wanneer Claude klaar is</li>
-            <li>De video verdwijnt ook wanneer Claude input nodig heeft</li>
-            <li>Zo blijft je focus altijd op je werk</li>
+            <li>Videos appear when Claude Code is working</li>
+            <li>Videos disappear when Claude is done</li>
+            <li>Videos hide when Claude needs input</li>
+            <li>Keep your focus on your work</li>
           </ul>
         </div>
 
-        <div class="instructions" style="margin-top: 15px; background: #fff3cd; border-color: #ffc107;">
-          <h3 style="color: #856404;">Setup Vereist</h3>
-          <ul style="color: #856404;">
-            <li>Zorg dat Claude Code draait in je terminal</li>
-            <li>De applicatie monitort de log files automatisch</li>
-            <li>Bij problemen, check de console voor log berichten</li>
+        <div class="info-box warning">
+          <h3>
+            <i class="fas fa-wrench"></i>
+            Setup Required
+          </h3>
+          <ul>
+            <li>Make sure Claude Code is running</li>
+            <li>App monitors log files automatically</li>
+            <li>Check console for log messages</li>
           </ul>
         </div>
       </div>
@@ -251,7 +390,12 @@
         }
 
         // Update user info
-        document.getElementById('userBadge').textContent = `${data.user.platform} - ${data.user.username}`;
+        const userBadge = document.getElementById('userBadge');
+        userBadge.innerHTML = `
+          <i class="fab fa-${data.user.platform}"></i>
+          <span>${data.user.username}</span>
+        `;
+
         document.getElementById('platform').textContent = data.user.platform.toUpperCase();
         document.getElementById('username').textContent = data.user.username;
 
@@ -261,10 +405,10 @@
 
         if (data.claudeActive) {
           statusDot.className = 'status-dot active';
-          statusText.textContent = 'Claude Code is actief - Video wordt getoond';
+          statusText.textContent = 'Claude Code is active - Video playing';
         } else {
           statusDot.className = 'status-dot idle';
-          statusText.textContent = 'Claude Code is inactief - Geen video';
+          statusText.textContent = 'Claude Code is inactive - No video';
         }
       } catch (error) {
         console.error('Failed to load status:', error);
