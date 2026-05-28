@@ -6,64 +6,75 @@ class VideoPopupManager {
     this.active = false;
     this.currentVideoWindow = null;
     this.config = getConfig();
-    this.videoUrls = [
-      'https://www.tiktok.com/foryou',
-      'https://www.youtube.com/shorts',
-      'https://www.instagram.com/reels'
-    ];
-    this.currentIndex = 0;
+    this.tiktokUrl = 'https://www.tiktok.com/foryou';
+    this.minimized = false;
   }
 
   async showVideo() {
-    if (this.active) {
-      console.log('Video already showing');
+    if (this.active && !this.minimized) {
+      console.log('TikTok already showing');
+      return;
+    }
+
+    // If minimized, restore it
+    if (this.minimized) {
+      this.restoreVideo();
       return;
     }
 
     this.active = true;
-    console.log('🎥 Opening video feed in browser');
+    console.log('🎥 Opening TikTok in browser');
 
     this.launchVideoPlayer();
   }
 
   hideVideo() {
-    if (!this.active) {
+    // Don't hide, just minimize for authorization prompts
+    this.minimizeVideo();
+  }
+
+  minimizeVideo() {
+    if (!this.active || this.minimized) {
       return;
     }
 
-    this.active = false;
-    console.log('🚫 Closing video browser');
+    this.minimized = true;
+    console.log('📉 Minimizing TikTok for user authorization');
 
-    this.closeVideoPlayer();
+    this.minimizeVideoPlayer();
   }
 
-  getRandomVideoUrl() {
-    // Rotate through platforms or pick random
-    const url = this.videoUrls[this.currentIndex % this.videoUrls.length];
-    this.currentIndex++;
-    return url;
+  restoreVideo() {
+    if (!this.minimized) {
+      return;
+    }
+
+    this.minimized = false;
+    console.log('📈 Restoring TikTok window');
+
+    this.restoreVideoPlayer();
   }
 
   launchVideoPlayer() {
-    const videoUrl = this.getRandomVideoUrl();
-    console.log(`📺 Opening: ${videoUrl}`);
+    console.log(`📺 Opening TikTok in top-right corner`);
 
-    // Open in default browser with AppleScript to control window size
+    // Position in top-right corner: x from right edge, y at top
+    // Screen width typically ~1920, so start at x=1320 for 600px wide window
     const script = `
       osascript -e 'tell application "Safari"
         activate
-        make new document with properties {URL:"${videoUrl}"}
-        set bounds of window 1 to {100, 100, 600, 900}
+        make new document with properties {URL:"${this.tiktokUrl}"}
+        set bounds of window 1 to {1320, 0, 1920, 800}
       end tell'
     `;
 
     exec(script, (error, stdout, stderr) => {
       if (error) {
         console.log('Safari not available, trying Chrome...');
-        this.launchWithChrome(videoUrl);
+        this.launchWithChrome(this.tiktokUrl);
       } else {
         this.currentVideoWindow = 'safari';
-        console.log('✅ Video feed opened in Safari');
+        console.log('✅ TikTok opened in Safari (top-right)');
       }
     });
   }
@@ -74,6 +85,7 @@ class VideoPopupManager {
         activate
         make new window
         set URL of active tab of window 1 to "${videoUrl}"
+        set bounds of front window to {1320, 0, 1920, 800}
       end tell'
     `;
 
@@ -83,59 +95,98 @@ class VideoPopupManager {
         exec(`open "${videoUrl}"`, (err) => {
           if (!err) {
             this.currentVideoWindow = 'default';
-            console.log('✅ Video feed opened in default browser');
+            console.log('✅ TikTok opened in default browser');
           }
         });
       } else {
         this.currentVideoWindow = 'chrome';
-        console.log('✅ Video feed opened in Chrome');
+        console.log('✅ TikTok opened in Chrome (top-right)');
       }
     });
   }
 
-  closeVideoPlayer() {
+  minimizeVideoPlayer() {
     if (!this.currentVideoWindow) {
       return;
     }
 
-    console.log('🔒 Closing video window automatically...');
+    console.log('📉 Minimizing TikTok window to dock...');
 
-    // Close the most recent Safari/Chrome window
+    // Minimize to dock using native AppleScript
     if (this.currentVideoWindow === 'safari') {
-      const closeScript = `
+      const minimizeScript = `
         osascript -e 'tell application "Safari"
-          if (count of windows) > 0 then
-            close window 1
-          end if
+          set miniaturized of window 1 to true
         end tell'
       `;
 
-      exec(closeScript, (error) => {
+      exec(minimizeScript, (error) => {
         if (error) {
-          console.log('⚠️  Could not close Safari window automatically');
+          console.log('⚠️  Could not minimize Safari window');
         } else {
-          console.log('✅ Safari window closed');
+          console.log('✅ Safari minimized to dock');
         }
       });
     } else if (this.currentVideoWindow === 'chrome') {
-      const closeScript = `
-        osascript -e 'tell application "Google Chrome"
-          if (count of windows) > 0 then
-            close window 1
-          end if
+      const minimizeScript = `
+        osascript -e 'tell application "System Events"
+          tell process "Google Chrome"
+            set value of attribute "AXMinimized" of window 1 to true
+          end tell
         end tell'
       `;
 
-      exec(closeScript, (error) => {
+      exec(minimizeScript, (error) => {
         if (error) {
-          console.log('⚠️  Could not close Chrome window automatically');
+          console.log('⚠️  Could not minimize Chrome window');
         } else {
-          console.log('✅ Chrome window closed');
+          console.log('✅ Chrome minimized to dock');
         }
       });
     }
+  }
 
-    this.currentVideoWindow = null;
+  restoreVideoPlayer() {
+    if (!this.currentVideoWindow) {
+      return;
+    }
+
+    console.log('📈 Restoring TikTok window from dock...');
+
+    // Restore from dock using native AppleScript
+    if (this.currentVideoWindow === 'safari') {
+      const restoreScript = `
+        osascript -e 'tell application "Safari"
+          set miniaturized of window 1 to false
+          activate
+        end tell'
+      `;
+
+      exec(restoreScript, (error) => {
+        if (error) {
+          console.log('⚠️  Could not restore Safari window');
+        } else {
+          console.log('✅ Safari restored from dock');
+        }
+      });
+    } else if (this.currentVideoWindow === 'chrome') {
+      const restoreScript = `
+        osascript -e 'tell application "System Events"
+          tell process "Google Chrome"
+            set value of attribute "AXMinimized" of window 1 to false
+          end tell
+        end tell
+        tell application "Google Chrome" to activate'
+      `;
+
+      exec(restoreScript, (error) => {
+        if (error) {
+          console.log('⚠️  Could not restore Chrome window');
+        } else {
+          console.log('✅ Chrome restored from dock');
+        }
+      });
+    }
   }
 
   isActive() {

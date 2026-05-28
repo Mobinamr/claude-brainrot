@@ -96,22 +96,22 @@ app.get('/', (req, res) => {
     <body>
       <div class="container">
         <h1>🧠 Claude Brainrot</h1>
-        <p>Automatic TikTok/YouTube Shorts while you work with Claude Code</p>
+        <p>Automatic TikTok while you work with Claude Code</p>
 
         <div class="status">
           <div><span class="status-dot"></span> System Active</div>
-          <p style="margin-top: 15px; color: #666;">Video feeds will open automatically when activity is detected</p>
+          <p style="margin-top: 15px; color: #666;">TikTok will open in top-right corner when activity is detected</p>
         </div>
 
-        <button onclick="testVideo()">🎥 Test Video Popup</button>
+        <button onclick="testVideo()">🎥 Test TikTok Popup</button>
         <button onclick="window.location.reload()">🔄 Refresh</button>
 
         <div class="info">
           <h3>How it works:</h3>
-          <p>• When you interact with this page (refreshing, clicking)</p>
-          <p>• TikTok or YouTube Shorts opens in a new browser window</p>
+          <p>• When you interact with this page → TikTok opens in top-right</p>
           <p>• Watch while Claude processes your prompts</p>
-          <p>• Close the video window when you're done</p>
+          <p>• When Claude needs authorization → TikTok minimizes to dock</p>
+          <p>• When you resume → TikTok restores automatically</p>
         </div>
       </div>
 
@@ -144,12 +144,12 @@ app.post('/api/video/hide', (req, res) => {
 // Start simple activity monitor
 startSimpleMonitor({
   onActive: () => {
-    console.log('💫 Activity detected - opening video feed');
+    console.log('💫 Activity detected - showing TikTok');
     videoManager.showVideo();
   },
   onIdle: () => {
-    console.log('😴 No activity - video will auto-close');
-    videoManager.hideVideo();
+    console.log('⏸️  Waiting for authorization - minimizing TikTok');
+    videoManager.hideVideo(); // This now minimizes instead of closes
   }
 });
 
