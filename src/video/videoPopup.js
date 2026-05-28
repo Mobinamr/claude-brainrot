@@ -98,10 +98,42 @@ class VideoPopupManager {
       return;
     }
 
-    console.log('💡 Tip: Close the video browser window manually when done');
+    console.log('🔒 Closing video window automatically...');
 
-    // We could close it automatically but that might close other tabs
-    // Better to let user close it themselves
+    // Close the most recent Safari/Chrome window
+    if (this.currentVideoWindow === 'safari') {
+      const closeScript = `
+        osascript -e 'tell application "Safari"
+          if (count of windows) > 0 then
+            close window 1
+          end if
+        end tell'
+      `;
+
+      exec(closeScript, (error) => {
+        if (error) {
+          console.log('⚠️  Could not close Safari window automatically');
+        } else {
+          console.log('✅ Safari window closed');
+        }
+      });
+    } else if (this.currentVideoWindow === 'chrome') {
+      const closeScript = `
+        osascript -e 'tell application "Google Chrome"
+          if (count of windows) > 0 then
+            close window 1
+          end if
+        end tell'
+      `;
+
+      exec(closeScript, (error) => {
+        if (error) {
+          console.log('⚠️  Could not close Chrome window automatically');
+        } else {
+          console.log('✅ Chrome window closed');
+        }
+      });
+    }
 
     this.currentVideoWindow = null;
   }
