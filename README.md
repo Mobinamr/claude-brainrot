@@ -32,8 +32,8 @@ node --version  # Should be v18.0.0+
 
 ### Step 1: Clone & Install
 ```bash
-git clone https://github.com/Mobinamr/claudepp.git
-cd claudepp
+git clone https://github.com/Mobinamr/claude-brainrot.git
+cd claude-brainrot
 npm install
 ```
 
@@ -59,7 +59,8 @@ That's it! TikTok opens automatically.
 
 Simply tell Claude:
 ```
-I want TikTok while you work. Run 'claudetiktok' for me.
+I want TikTok while you work. Install from https://github.com/Mobinamr/claude-brainrot.git
+and run 'claudetiktok' for me.
 ```
 
 Or run it yourself before starting work:
@@ -101,7 +102,7 @@ Press `Ctrl+C` in the terminal
 ## Troubleshooting
 
 ### Command not found: claudetiktok
-Run `npm link` again in the claudepp directory
+Run `npm link` again in the claude-brainrot directory
 
 ### TikTok doesn't open
 - Make sure Safari or Chrome is installed
