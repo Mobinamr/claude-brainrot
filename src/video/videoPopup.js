@@ -33,6 +33,19 @@ class VideoPopupManager {
     this.minimizeVideo();
   }
 
+  closeVideo() {
+    // Completely close TikTok when session is done
+    if (!this.active) {
+      return;
+    }
+
+    this.active = false;
+    this.minimized = false;
+    console.log('🚫 Closing TikTok completely - session ended');
+
+    this.closeVideoPlayer();
+  }
+
   minimizeVideo() {
     if (!this.active || this.minimized) {
       return;
@@ -58,13 +71,13 @@ class VideoPopupManager {
   launchVideoPlayer() {
     console.log(`📺 Opening TikTok in top-right corner`);
 
-    // Position in top-right corner: x from right edge, y at top
-    // Screen width typically ~1920, so start at x=1320 for 600px wide window
+    // Position in top-right corner: more visible, not off-screen
+    // Window: 500px wide, positioned so full window is visible
     const script = `
       osascript -e 'tell application "Safari"
         activate
         make new document with properties {URL:"${this.tiktokUrl}"}
-        set bounds of window 1 to {1320, 0, 1920, 800}
+        set bounds of window 1 to {900, 50, 1400, 850}
       end tell'
     `;
 
@@ -85,7 +98,7 @@ class VideoPopupManager {
         activate
         make new window
         set URL of active tab of window 1 to "${videoUrl}"
-        set bounds of front window to {1320, 0, 1920, 800}
+        set bounds of front window to {900, 50, 1400, 850}
       end tell'
     `;
 
@@ -187,6 +200,51 @@ class VideoPopupManager {
         }
       });
     }
+  }
+
+  closeVideoPlayer() {
+    if (!this.currentVideoWindow) {
+      return;
+    }
+
+    console.log('🔒 Closing TikTok window completely...');
+
+    // Close the Safari/Chrome window
+    if (this.currentVideoWindow === 'safari') {
+      const closeScript = `
+        osascript -e 'tell application "Safari"
+          if (count of windows) > 0 then
+            close window 1
+          end if
+        end tell'
+      `;
+
+      exec(closeScript, (error) => {
+        if (error) {
+          console.log('⚠️  Could not close Safari window');
+        } else {
+          console.log('✅ Safari window closed completely');
+        }
+      });
+    } else if (this.currentVideoWindow === 'chrome') {
+      const closeScript = `
+        osascript -e 'tell application "Google Chrome"
+          if (count of windows) > 0 then
+            close window 1
+          end if
+        end tell'
+      `;
+
+      exec(closeScript, (error) => {
+        if (error) {
+          console.log('⚠️  Could not close Chrome window');
+        } else {
+          console.log('✅ Chrome window closed completely');
+        }
+      });
+    }
+
+    this.currentVideoWindow = null;
   }
 
   isActive() {

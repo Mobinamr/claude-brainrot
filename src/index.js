@@ -149,7 +149,11 @@ startSimpleMonitor({
   },
   onIdle: () => {
     console.log('⏸️  Waiting for authorization - minimizing TikTok');
-    videoManager.hideVideo(); // This now minimizes instead of closes
+    videoManager.hideVideo(); // Minimizes to dock
+  },
+  onComplete: () => {
+    console.log('🏁 Session complete - closing TikTok completely');
+    videoManager.closeVideo(); // Closes completely after 30s idle
   }
 });
 
